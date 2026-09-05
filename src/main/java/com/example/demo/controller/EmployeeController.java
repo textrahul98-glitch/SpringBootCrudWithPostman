@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,44 +20,48 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name="Employee", description=" Employee API Information")
+@Tag(name = "Employee", description = " Employee API Information")
 @RestController
 @RequestMapping("/emp")
 public class EmployeeController {
-	
+
+	@Value("${spring.datasource.url}")
+	private String url;
+
 	@Autowired
 	private EmployeeService empService;
-	
-	@PostMapping("/save")// http://localhost:8080/emp/save
-	@Operation(description=" Rest Api is used to save Employee Information")
-	@ApiResponses(value= {@ApiResponse(responseCode = "200",
-	description="Employee Information Saved Successfully")})
+
+	@PostMapping("/save") // http://localhost:8080/emp/save
+	@Operation(description = " Rest Api is used to save Employee Information")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Employee Information Saved Successfully") })
 	public Employee saveEmployee(@RequestBody Employee emp) {
-		Employee emp1=	empService.saveEmployee(emp);
+		Employee emp1 = empService.saveEmployee(emp);
 		return emp1;
-		
-		
+
 	}
-	
-	@GetMapping("/getEmp/{id}")//http://localhost:8080/emp/getEmp/2
-	@Operation(description=" Rest Api is used to Get Employee Information")
-	@ApiResponses(value= {@ApiResponse(responseCode = "200",
-	description="Employee Information get Successfully")})
-	public Employee getEmployeeById(@PathVariable ("id") Integer id) {
-		
+
+	@GetMapping("/getEmp/{id}") // http://localhost:8080/emp/getEmp/2
+	@Operation(description = " Rest Api is used to Get Employee Information")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Employee Information get Successfully") })
+	public Employee getEmployeeById(@PathVariable("id") Integer id) {
+
 		return empService.getEmployeeById(id);
 	}
-	
-	@DeleteMapping("/deleteEmp/{id}")//http://localhost:8080/emp/deleteEmp/3
-	@Operation(description=" Rest Api is used to Delete Employee Information")
-	@ApiResponses(value= {@ApiResponse(responseCode = "200",
-	description="Employee Information Deleted Successfully")})
-	public String deleteEmployeeById(@PathVariable ("id") Integer id) {
-		
-		 empService.deleteById(id);
-		 return "Id deleted..";
+
+	@DeleteMapping("/deleteEmp/{id}") // http://localhost:8080/emp/deleteEmp/3
+	@Operation(description = " Rest Api is used to Delete Employee Information")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Employee Information Deleted Successfully") })
+	public String deleteEmployeeById(@PathVariable("id") Integer id) {
+
+		empService.deleteById(id);
+		return "Id deleted..";
 	}
-	
-	
+
+	@GetMapping("/getData")
+	public String getData() {
+		return url;
+	}
 
 }
