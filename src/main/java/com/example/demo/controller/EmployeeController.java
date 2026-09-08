@@ -25,9 +25,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/emp")
 public class EmployeeController {
 
-	@Value("${spring.datasource.url}")
-	private String url;
-
 	@Autowired
 	private EmployeeService empService;
 
@@ -59,9 +56,5 @@ public class EmployeeController {
 		return "Id deleted..";
 	}
 
-	@GetMapping("/getData")
-	public String getData() {
-		return url;
-	}
 
 }

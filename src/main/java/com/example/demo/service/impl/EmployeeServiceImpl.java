@@ -1,8 +1,10 @@
 package com.example.demo.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
+import com.example.demo.exception.EmployeeNotFoundException;
 import com.example.demo.model.Employee;
 import com.example.demo.repository.EmpRepo;
 import com.example.demo.service.EmployeeService;
@@ -22,7 +24,11 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public Employee getEmployeeById(Integer id) {
 		// TODO Auto-generated method stub
-		return empRepo.findById(id).orElse(null);
+	   //return empRepo.findById(id).orElseThrow();
+		
+		return empRepo.findById(id).orElseThrow(()-> 
+		new EmployeeNotFoundException("Employee not found with Id : "+id)
+		);
 	}
 
 	@Override
