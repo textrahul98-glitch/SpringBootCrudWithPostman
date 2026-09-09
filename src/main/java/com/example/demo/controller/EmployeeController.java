@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "Employee", description = " Employee API Information")
 @RestController
@@ -32,7 +33,7 @@ public class EmployeeController {
 	@Operation(description = " Rest Api is used to save Employee Information")
 	@ApiResponses(value = {
 			@ApiResponse(responseCode = "200", description = "Employee Information Saved Successfully") })
-	public Employee saveEmployee(@RequestBody Employee emp) {
+	public Employee saveEmployee(@Valid @RequestBody Employee emp) {
 		Employee emp1 = empService.saveEmployee(emp);
 		return emp1;
 
