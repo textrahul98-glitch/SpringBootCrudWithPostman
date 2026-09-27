@@ -1,4 +1,4 @@
-name: Build and SonarQube Pipeline
+name: CI CD Pipeline
 
 on:
   push:
@@ -7,56 +7,137 @@ on:
 
 jobs:
 
+  # ==========================================
+  # 1. BUILD
+  # ==========================================
   build:
-
+    name: 1. Build Application
     runs-on: ubuntu-latest
 
     steps:
 
-      # 1. Checkout source code
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. Setup Java 21
-      - name: Set up Java 21
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      # 3. Check Java version
-      - name: Check Java version
+      - name: Check Java Version
         run: java -version
 
-      # 4. Check Maven version
-      - name: Check Maven version
-        run: mvn -version
-
-      # 5. Clean project
       - name: Maven Clean
         run: mvn clean
 
-      # 6. Compile project
       - name: Maven Compile
         run: mvn compile
 
-      # 7. Run tests
-      - name: Maven Test
-        run: mvn test
-
-      # 8. Package application
       - name: Maven Package
         run: mvn package -DskipTests
 
-      # 9. SonarQube Analysis
+
+  # ==========================================
+  # 2. TEST
+  # ==========================================
+  test:
+    name: 2. Run Tests
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run Maven Tests
+        run: mvn test
+
+
+  # ==========================================
+  # 3. SONARQUBE
+  # ==========================================
+  sonar:
+    name: 3. SonarQube Analysis
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
       - name: SonarQube Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
-          mvn sonar:sonar \
+          mvn clean verify sonar:sonar \
+            -DskipTests \
             -Dsonar.host.url="$SONAR_HOST_URL" \
             -Dsonar.token="$SONAR_TOKEN"
+
+
+  # ==========================================
+  # 4. DOCKER BUILD
+  # ==========================================
+  docker:
+    name: 4. Docker Build
+    needs: sonar
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build JAR
+        run: mvn clean package -DskipTests
+
+      - name: Build Docker Image
+        run: |
+          docker build -t springboot-crud:latest .
+
+
+  # ==========================================
+  # 5. DEPLOY
+  # ==========================================
+  deploy:
+    name: 5. Deploy
+    needs: docker
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Deployment Information
+        run: |
+          echo "Docker build completed successfully"
+          echo "Deployment step is ready"
+          echo "Next step can deploy the Docker image to AWS EC2"
