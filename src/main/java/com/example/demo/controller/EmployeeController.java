@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.example.demo.model.Employee;
 import com.example.demo.service.EmployeeService;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 @Tag(name = "Employee", description = " Employee API Information")
 @RestController
 @RequestMapping("/emp")
+@CrossOrigin(origins = "http://localhost:4200")
 public class EmployeeController {
 
 	@Autowired
